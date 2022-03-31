@@ -18,15 +18,22 @@ cd dobby-security
 Ex: ./dobby-security.sh -c Netflix 
 
 If required additional prints for more information, follow below command
+
   Ex: ./dobby-security.sh -c Netflix -v
-For help message, follow the below command
+  
+  For help message, follow the below command
+  
   Ex: ./dobby-security.sh -h
   
 Options:
-  -b		       Do not print colors  
-  -c           Container name (Ensure the container is running)
-  -h           Print this help message
-  -v           prints the additional prints
+
+  -b &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; optional &nbsp;&nbsp;&nbsp;&nbsp; Do not print colors  
+  
+  -c  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mandatory &nbsp;&nbsp;&nbsp;&nbsp; Container name (Ensure the container is running)
+  
+  -h  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; optional &nbsp;&nbsp;&nbsp;&nbsp; Print this help message
+  
+  -v  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; optional &nbsp;&nbsp;&nbsp;&nbsp; prints the additional prints
   
 
 
