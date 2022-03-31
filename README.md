@@ -23,7 +23,7 @@ For help message, follow the below command
   Ex: ./dobby-security.sh -h
   
 Options:
-  -b		   Do not print colors  
+  -b		       Do not print colors  
   -c           Container name (Ensure the container is running)
   -h           Print this help message
   -v           prints the additional prints
@@ -31,3 +31,5 @@ Options:
 
 
 After excuted the script, you will get the output as test results summary.
+![image](https://user-images.githubusercontent.com/79261622/161042377-0c983da6-3ca5-4ab2-b21c-9ce0a14ca756.png)
+
