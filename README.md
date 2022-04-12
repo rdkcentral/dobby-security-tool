@@ -9,7 +9,7 @@ The tests are automated for each dobby containers.
 
 Running Dobby Security Tool
 
-git clone https://github.com/DineshkumarJP/dobby-security-tool.git
+git clone https://github.com/rdkcentral/dobby-security-tool.git
 
 cd dobby-security
 
