@@ -1,4 +1,40 @@
 #!/bin/bash
+test_5() {
+printtxt "\n${bldbluclr}Dobby Continer Runtime Test ${txtrst}"
+}
+
+test_5_1() {
+        local testid="5.1"
+        local desc="Ensure that, if applicable, an AppArmor Profile is enabled"
+        local check="$testid - $desc"
+        local output_1
+	local output_2
+        local DobbyInit_PID
+	local FILE
+	local test
+
+        FILE="/sys/module/apparmor/parameters/enabled"
+        if test -f $FILE; then
+                DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
+                output_1=$(cat /sys/module/apparmor/parameters/enabled)
+                if [ "$output_1" == "Y" ]; then
+                        output_2=$(cat /proc/$DobbyInit_PID/attr/current | grep -E 'complain|enforce')
+                        if [ "$output_2" == "" ]; then
+                                fail "$check"
+                                return
+                        else
+                                pass "$check"
+                                return
+                        fi
+
+                fi
+                fail "$check"
+
+        else
+                fail "$check"
+        fi
+}
+
 test_5_3() {
 	local testid="5.3"
 	local desc="Ensure that Linux kernel capabilities are restricted within containers"
@@ -7,6 +43,7 @@ test_5_3() {
 	local input
 	local DobbyInit_PID
 	local ouputarr
+	local status
 	
 	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
 	
@@ -49,6 +86,8 @@ test_5_5() {
         local DobbyInit_PID
 	local readwrite=0
 	local fullymounted=0 
+	
+
 	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
 
         output_1=$(cat /proc/$DobbyInit_PID/mounts | grep  -E 'boot|dev|etc|lib|proc|sys|usr|bin|sbin|opt')
@@ -77,19 +116,91 @@ test_5_5() {
 	elif [ "$fullymounted" -gt "0" -a "$readwrite" == "0" ]; then
 		warn "$check"
 		if [ -n "$verbose" ]; then
-		 printtxt "The following directories are mounted fully"
-		 for index in "${Fm_arr[@]}"; do echo "$index"; done
+		printf "%b\n" "${bldmgnclr}The following directories are mounted fully$1${txtrst} "
+		 for index in "${Fm_arr[@]}"; do printf "%b\n" " ${bldwhtclr} $index $1${txtrst}"; done
 		fi
 		return
 
 	else
 		fail "$check"
 		if [ -n "$verbose" ]; then
-		 printtxt "The following directories are mounted fully in rw mode"
-                 for index in "${Rw_arr[@]}"; do echo "$index"; done
+		 printf "%b\n" "${bldmgnclr}The following directories are mounted fully in rw mode$1${txtrst} "
+                 for index in "${Rw_arr[@]}"; do printf "%b\n" " ${bldwhtclr} $index $1${txtrst}"; done
                 fi
 
 	fi
+}
+
+test_5_5_1() {
+
+        local testid="5.5.1"
+        local desc="Ensure nosuid,nodev,noexec options are present in mount"
+        local check="$testid - $desc"
+        local output
+        local DobbyInit_PID
+	local counter_1=0
+	local counter_2=0
+	local check_1
+	local check_2
+	local check_3
+        local Flag_1
+        local Flag_2
+        local Flag_3
+	local ouputarr
+
+	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
+        output=$(cat /proc/$DobbyInit_PID/mountinfo)
+        while read line;
+        do
+                check_1=$(echo $line | grep nosuid)
+
+                if [ "$check_1" == "" ]; then
+                        Flag_1=0
+                else
+                        Flag_1=1
+                fi
+
+                check_2=$(echo $line | grep nodev)
+                if [ "$check_2" == "" ]; then
+                        Flag_2=0
+                else
+                        Flag_2=1
+                fi
+
+                check_3=$(echo $line | grep noexec)
+                if [ "$check_3" == "" ]; then
+                        Flag_3=0
+                else
+                        Flag_3=1
+                fi
+
+                if [ "$Flag_1" == "1" -a "$Flag_2" == "1" -a "$Flag_3" == "1" ]; then
+			counter_1=$((counter_1+1))                       
+                else
+			counter_2=$((counter_2+1))
+                        line=$(echo $line | grep -o '/[^"]*')
+                        ouputarr+=("$line")
+                fi
+	done <<< "$output"
+	
+	if [ "$counter_2" == "0" -a  "$counter_1" -gt "0" ]; then
+		 printf "%b\n" "${bldcynclr}[MANUAL] $check \n${bldmgnclr}There are no mount points without 'nosuid,nodev,noexec' options.$1${txtrst} "
+
+	else
+	
+		if [ -n "$verbose" ]; then
+			printf "%b\n" "${bldcynclr}[MANUAL] $check \n${bldmgnclr}These are the mounts without 'nosuid,nodev,noexec' options$1${txtrst} "
+			printf "%b\n" "${bldmgnclr}Validate that correct mount options are used wherever applicable"
+        		for index in "${ouputarr[@]}"; do printf "%b" "${bldwhtclr}$index\n$1${txtrst}"; done
+		else
+			printf "%b\n" "${bldcynclr}[MANUAL] $check ${bldmgnclr}\nThere are mount points  without 'nosuid,nodev,noexec' options$1${txtrst} "
+			printf "%b\n" "${bldmgnclr}Validate that correct mount options are used wherever applicable."\
+			"Use -v option to get more details about these mount points$1${txtrst}"
+		fi
+
+
+	fi
+	totalmanual=$((totalmanual+1))
 }
 
 test_5_9() {
@@ -101,10 +212,10 @@ test_5_9() {
 	output=$(grep -irns "veth" /tmp/dobby/plugin/networking | grep $containername)
 
     if [ "$output" == "" ]; then
-      fail "$check"
-      return
+    	fail "$check"
+      	return
     fi
-      pass "$check"
+    pass "$check"
 }
 
 test_5_10() {
@@ -151,7 +262,8 @@ test_5_12_1() {
         local desc="Ensure that /tmp is not bind-mounted directly into the container"
         local check="$testid - $desc"
 	local DobbyInit_PID
-	
+	local output
+
 	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
 	output=$(cat /proc/$DobbyInit_PID/mounts | grep "/tmp" | awk '{print $3}')
 	 
@@ -190,9 +302,36 @@ test_5_12_2() {
     	fi
       		fail "$check"
 
-
 }
+test_5_12_3() {
+	
+	local testid="5.12.3"
+        local desc="Containers should use the Storage plugin to provide r/w storage areas where possible"
+        local check="$testid - $desc"
+        local DobbyInit_PID
+	local output
 
+	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
+	output=$(cat /proc/$DobbyInit_PID/mounts | grep '/dev/loop' )
+	
+	if [ "$output" == "" ]; then
+                printf "%b\n" "${bldcynclr}[MANUAL] $check ${bldmgnclr}\nThere are no loopback storage mounts present in container"
+		printf "%b\n" "Ensure that storage plugin is used to persist container data wherever applicable.$1${txtrst}"
+                totalmanual=$((totalmanual+1))
+		return
+        fi
+	
+	if [ -n "$verbose" ]; then
+		printf "%b\n" "${bldcynclr}[MANUAL] $check ${bldmgnclr}\nThese are the loopback storage mounts present in container"
+        	printf "%b\n" "${bldwhtclr}$output\n${bldmgnclr}Validate that storage plugin is used to persist container data wherever applicable.$1${txtrst} "
+	else
+        	printf "%b\n" "${bldcynclr}[MANUAL] $check ${bldmgnclr}\nThere are the loopback storage mounts present in container"
+        	printf "%b\n" "${bldmgnclr}Validate that storage plugin is used to persist container data wherever applicable."\
+		"Use -v option to get more details$1${txtrst} "
+	
+	fi
+	
+}
 test_5_15() {
 	local testid="5.15"
 	local desc="Ensure that the host's process namespace is not shared"
@@ -200,18 +339,16 @@ test_5_15() {
 	local output
   	local nspid
 	local pid
-
-	output=$(DobbyTool info $containername | jsonValue nsPid)
-	nspid=$(echo $output | awk '{ print $1}')
-		
-	output=$(DobbyTool info $containername | jsonValue pid)
-	pid=$(echo $output | awk '{ print $1}')
-
-    if [ "$nspid" == "$pid" ]; then
-      fail "$check"
-      return
-    fi
-      pass "$check"
+	
+	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
+	pid=$(cat /proc/$DobbyInit_PID/status | grep -w 'Pid'| awk '{print $2}')
+	nspid=$(cat /proc/$DobbyInit_PID/status | grep -w 'NSpid'| awk '{print $3}')
+    
+	if [ "$nspid" == "$pid" ]; then
+      		fail "$check"
+      		return
+    	fi
+     		 pass "$check"
 }
 
 test_5_17() {
@@ -227,8 +364,14 @@ test_5_17() {
     	if [ "$output_1" == "" -a  "$output_2" == "" ]; then
         	pass "$check"
       		return
-    	fi
-   		 fail "$check"  
+    	else
+		fail "$check"  
+		if [ -n "$verbose" ]; then
+			printf "%b\n" "${bldmgnclr}These are the device nodes exposed to container with * or mknod permission"
+                	printf "%b\n" "${bldwhtclr}$output_1$output_2$1${txtrst} "
+		fi
+	fi
+
 }
 
 test_5_20() {
@@ -277,6 +420,29 @@ test_5_20_1() {
 
 }
 
+test_5_21() {
+
+        local testid="5.21"
+        local desc="Ensure the default seccomp profile is not Disabled"
+        local check="$testid - $desc"
+        local output
+        local DobbyInit_PID
+
+        DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
+        output=$(grep Seccomp /proc/$DobbyInit_PID/status | awk '{print $2}')
+
+        if [ "$output" == "0" ]; then
+        	fail "$check"
+                if [ -n "$verbose" ]; then
+                	printtxt "Seccomp is not enabled"
+                fi
+
+                return
+        fi
+
+        pass "$check"
+
+}
 test_5_24() {
 
 	local testid="5.24"
@@ -324,14 +490,26 @@ test_5_24_2() {
         local desc="Ensure that GPU cgroup restrictions are enabled in supported platforms (Only supported for Mali patforms)"
         local check="$testid - $desc"
         local output
+	local FILE
+	local test
+	
 
-        output=$(DobbyTool info $containername | grep "gpu")
-        if [ "$output" == "" ]; then
-                fail "$check"
-                return
-        fi
+	FILE="/sys/fs/cgroup/gpu/$containername/gpu.limit_in_bytes"
+        if test -f $FILE; then
+		output=$(cat /sys/fs/cgroup/gpu/$containername/gpu.limit_in_bytes)
+        	total=$(cat /sys/fs/cgroup/gpu/gpu.limit_in_bytes)
 
-        pass "$check"
+        	if [ "$output" == "0" -o "$output" == "-1" -o "$output" == "$total" ]; then
+          		fail "$check"
+         		return
+        	fi
+          	pass "$check"
+	else
+		fail "$check"
+		if [ -n "$verbose" ]; then
+			printf "%b\n" "${bldmgnclr}gpu cgroup is not supported in this platform"
+		fi
+	fi
 
 }
 
@@ -360,10 +538,10 @@ test_5_29() {
 	output=$(brctl show | grep dobby0 | awk '{ print $1}')
     
     if [ "$output" == "dobby0" ]; then
-      pass "$check"
-      return
+    	pass "$check"
+      	return
     fi
-      fail "$check"
+    fail "$check"
 }
 
 test_5_31() {
@@ -376,11 +554,11 @@ test_5_31() {
 	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')	
 	output=$(find /proc/$DobbyInit_PID/root/* -iname dobbyPty.sock | grep -v find)
 	
-    if [ "$output" == "" ]; then
-      pass "$check"
-      return
-    fi
-    fail "$check"
+    	if [ "$output" == "" ]; then
+      		pass "$check"
+      		return
+    	fi	
+    	fail "$check"
 
 }
 
