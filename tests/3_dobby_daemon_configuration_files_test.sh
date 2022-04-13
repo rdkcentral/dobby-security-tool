@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 test_3() {
 printtxt "\n${bldbluclr}Dobby Daemon Configuration File Test ${txtrst}"
 }
