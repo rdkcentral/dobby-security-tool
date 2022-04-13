@@ -1,6 +1,25 @@
 #!/bin/bash
+/*
+ * If not stated otherwise in this file or this component's Licenses.txt file the
+ * following copyright and licenses apply:
+ *
+ * Copyright © 2022 Tata Elxsi Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 test_5() {
-printtxt "\n${bldbluclr}Dobby Continer Runtime Test ${txtrst}"
+printtxt "\n${bldbluclr}Dobby Container Runtime Test ${txtrst}"
 }
 
 test_5_1() {
@@ -117,7 +136,7 @@ test_5_5() {
 		warn "$check"
 		if [ -n "$verbose" ]; then
 		printf "%b\n" "${bldmgnclr}The following directories are mounted fully$1${txtrst} "
-		 for index in "${Fm_arr[@]}"; do printf "%b\n" " ${bldwhtclr} $index $1${txtrst}"; done
+		 for index in "${Fm_arr[@]}"; do printf "%b\n" "${bldwhtclr}$index $1${txtrst}"; done
 		fi
 		return
 
@@ -125,7 +144,7 @@ test_5_5() {
 		fail "$check"
 		if [ -n "$verbose" ]; then
 		 printf "%b\n" "${bldmgnclr}The following directories are mounted fully in rw mode$1${txtrst} "
-                 for index in "${Rw_arr[@]}"; do printf "%b\n" " ${bldwhtclr} $index $1${txtrst}"; done
+                 for index in "${Rw_arr[@]}"; do printf "%b\n" "${bldwhtclr}$index $1${txtrst}"; done
                 fi
 
 	fi
@@ -190,7 +209,7 @@ test_5_5_1() {
 	
 		if [ -n "$verbose" ]; then
 			printf "%b\n" "${bldcynclr}[MANUAL] $check \n${bldmgnclr}These are the mounts without 'nosuid,nodev,noexec' options$1${txtrst} "
-			printf "%b\n" "${bldmgnclr}Validate that correct mount options are used wherever applicable"
+			printf "%b" "${bldmgnclr}Validate that correct mount options are used wherever applicable"
         		for index in "${ouputarr[@]}"; do printf "%b" "${bldwhtclr}$index\n$1${txtrst}"; done
 		else
 			printf "%b\n" "${bldcynclr}[MANUAL] $check ${bldmgnclr}\nThere are mount points  without 'nosuid,nodev,noexec' options$1${txtrst} "
