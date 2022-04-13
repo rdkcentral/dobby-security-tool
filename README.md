@@ -9,27 +9,27 @@ The tests are automated for each dobby containers.
 
 Running Dobby Security Tool
 
-git clone https://github.com/rdkcentral/dobby-security-tool.git
+git clone https://github.com/DineshkumarJP/dobby-security-tool.git
 
-cd dobby-security
+cd dobby-security-tool
 
-./dobby-security.sh -c container_name 
+./dobby_security.sh -c container_name 
 
 
-  Ex: ./dobby-security.sh -c Netflix -v
+  Ex: ./dobby_security.sh -c Netflix -v
   
   
   - Only run the test "5.10 - Ensure that the memory usage for containers is limited":
   
-      sh dobby_security.sh -c Netflix -t test_5_10
+      ./dobby_security.sh -c Netflix -t test_5_10
       
   - Run all available test except the dobby_daemon_configuration group and "2.9 - Enable user namespace support":
   
-      sh dobby_security.sh -c Netflix -e dobby_daemon_configuration,test_2_9
+      ./dobby_security.sh -c Netflix -e dobby_daemon_configuration,test_2_9
       
   - Run just the dobby_container_runtime tests except "5.9 - Ensure that the host's network namespace is not shared":
   
-      sh dobby_security.sh -c Netflix -t dobby_container_runtime -e test_5_9
+      ./dobby_security.sh -c Netflix -t dobby_container_runtime -e test_5_9
   
 Options:
 
