@@ -1,5 +1,9 @@
 #!/bin/bash
 
+test_4() {
+printtxt "\n${bldbluclr}Dobby Container images Test ${txtrst}"
+}
+
 test_4_1() {
 	local testid="4.1"
 	local desc="Ensure that a user for the container has been created"
@@ -14,11 +18,11 @@ test_4_1() {
 
 	output=$(cat /proc/$child_pid/status | grep '^Uid:' | awk '{print $3}')
    
-    if [ "$output" == "0"  ]; then
-      fail "$check"
-      return
-    fi
-    pass "$check"
+   	if [ "$output" == "0"  ]; then
+      		fail "$check"
+      		return
+    	fi
+    	pass "$check"
 }
 
 test_4_8() {
@@ -31,14 +35,14 @@ test_4_8() {
 	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
 	output=$(find /proc/$DobbyInit_PID/root/ -perm /6000)
 	if [ "$output" == ""  ]; then
-	      pass "$check"
+		pass "$check"
       		return
    	fi
 		
-         	fail "$check"
-		if [ -n "$verbose" ]; then
-			var=$(ls -lh $output)
-			printtxt "$var"
-		fi
+        fail "$check"
+	if [ -n "$verbose" ]; then
+		var=$(ls -lh $output | cut -d "/" -f5-)
+		printtxt "$var"
+	fi
 
 }

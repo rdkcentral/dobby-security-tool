@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Color codes
 bldredclr='\033[1;31m' # Bold Red
 bldgrnclr='\033[1;32m' # Bold Green
@@ -8,15 +7,8 @@ bldcynclr='\033[1;36m' # Bold yellow
 bldylwclr='\033[1;33m' # Bold cyan
 bldmgnclr='\033[1;35m' # Bold Magenta
 bldwhtclr='\033[1;37m' # Bold white
+light_ylw='\033[0;33m' # light yellow
 txtrst='\033[0m'	   # No Color
-
-if [ -n "$nocolor" ] && [ "$nocolor" == "nocolor" ]; then
-  bldredclr=''
-  bldgrnclr=''
-  bldbluclr=''
-  bldylwclr=''
-  txtrst=''
-fi
 
 
 # Print the text
