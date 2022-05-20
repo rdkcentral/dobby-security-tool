@@ -257,6 +257,33 @@ test_5_10() {
           pass "$check"
 }
 
+test_5_11() {
+	local testid="5.11"
+        local desc="Ensure that CPU priority is set appropriately on containers"
+        local check="$testid - $desc"
+        local output
+	
+	FILE="/sys/fs/cgroup/cpu/Netflix/cpu.shares"
+        if [ -f $FILE ]; then
+		output=$(cat /sys/fs/cgroup/cpu/Netflix/cpu.shares)
+		if [ "$output" -gt "1" -a "$output" -le "262144" ]; then
+			pass "$check"
+		else
+			fail "$check"
+			if [ -n "$verbose" ]; then
+                                printf "%b\n" "${bldcynclr} Invalid CPU cgroup share value : $output $1${txtrst} "
+                        fi
+
+		fi
+
+	else
+		fail "$check"
+			if [ -n "$verbose" ]; then
+                        	printf "%b\n" "${bldcynclr} CPU cgroup is not set for the container $1${txtrst} "
+			fi
+	fi
+
+}
 test_5_12() {
         local testid="5.12"
         local desc="Ensure that the container's root filesystem is mounted as read only"
@@ -353,6 +380,24 @@ test_5_12_3() {
 
 	totalmanual=$((totalmanual+1))
 }
+
+test_5_12_4() {
+        local testid="5.12.4"
+        local desc="Ensure that the rootfsPropagation is set to private"
+        local check="$testid - $desc"
+        local output
+        local output_1
+
+        output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
+        output_1=$(cat $output/config.json | grep 'rootfsPropagation'  | awk '{print $2}' | sed 's/"//g')
+
+        if [ "$output_1" == "rprivate"  ]; then
+                pass "$check"
+                return
+        fi
+        fail "$check"
+}
+
 test_5_15() {
 	local testid="5.15"
 	local desc="Ensure that the host's process namespace is not shared"
@@ -495,23 +540,6 @@ test_5_24() {
 test_5_24_1() {
 
         local testid="5.24.1"
-        local desc="Ensure that CPU cgroup restrictions are enabled"
-        local check="$testid - $desc"
-	local output
-	
-	output=$(DobbyTool info $containername | grep  -E 'cpu|percpu') 
-	if [ "$output" == "" ]; then
-		fail "$check"
-		return
-	fi
-	
-	pass "$check"
-
-}
-
-test_5_24_2() {
-
-        local testid="5.24.2"
         local desc="Ensure that GPU cgroup restrictions are enabled in supported platforms (Only supported for Mali platforms now)"
         local check="$testid - $desc"
         local output
@@ -584,5 +612,22 @@ test_5_31() {
     	fi	
     	fail "$check"
 
+}
+
+test_5_32() {
+        local testid="5.32"
+        local desc="Ensure that the noNewPrivileges  is set to true"
+        local check="$testid - $desc"
+        local output
+        local output_1
+
+        output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
+        output_1=$(cat $output/config.json | grep 'noNewPrivileges'  | awk '{print $2}' | sed 's/,//g')
+	
+        if [ "$output_1" == "true"  ]; then
+                pass "$check"
+                return
+        fi
+        fail "$check"
 }
 
