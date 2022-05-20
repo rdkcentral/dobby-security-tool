@@ -48,6 +48,6 @@ Options:
 
 
 After excuted the script, you will get the output as test results summary.
-![image](https://user-images.githubusercontent.com/79261622/164607132-1f90740f-a210-47d0-885a-505cd1d42e96.png)
+![11_1](https://user-images.githubusercontent.com/79261622/167787844-62a2d737-4c45-478e-a5ec-0e543e3c5cb9.png)
 
 
