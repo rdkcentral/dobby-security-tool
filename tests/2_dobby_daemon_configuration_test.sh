@@ -36,7 +36,25 @@ test_2_1() {
   	pass "$check"
 }
 
+test_2_3() {
+	local testid="2.3"
+        local desc="Ensure the logging level is set to 'info'"
+        local check="$testid - $desc"
+        local DobbyInit_PID
+        local output
+	local output_1
+	
+	output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
+	output_1=$(cat $output/config.json | grep LOG_INFO | awk '{print $2}' | sed 's/"//g')
+	
+	if [ "$output_1" == "LOG_INFO"  ]; then
+                pass "$check"
+                return
+        fi
+        fail "$check"
 
+	
+}
 test_2_9() {
 	local testid="2.9"
 	local desc="Enable user namespace support"
