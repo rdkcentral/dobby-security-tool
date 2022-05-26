@@ -28,9 +28,8 @@ awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'$KEY'\042/){print $(i+1)}}}' | tr -d 
 input_valid() {
 local output
 
-output=$(DobbyTool info $containername |grep "error" | awk '{print $1}')
-
-if [ "$output" == "" ]; then
+output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $1}')
+if [ "$output" == "$containername" ]; then
 	echo "Container is running"
 else
 	printtxt "${bldmgnclr} Failed to find the container \n Please enter valid container name' Ex:./dobby_security.sh -c Netflix [OPTIONS] ${txtrst}\n"

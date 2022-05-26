@@ -62,7 +62,7 @@ done
 . ./functions/functions.sh
 
 # Check for required program(s)
-req_programs 'awk grep stat sed cut DobbyDaemon DobbyTool'
+req_programs 'awk grep stat sed cut DobbyDaemon'
 
 # Default Values
 totalpass=0
