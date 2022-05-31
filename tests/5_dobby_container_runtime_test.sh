@@ -263,9 +263,9 @@ test_5_11() {
         local check="$testid - $desc"
         local output
 	
-	FILE="/sys/fs/cgroup/cpu/Netflix/cpu.shares"
-        if [ -f $FILE ]; then
-		output=$(cat /sys/fs/cgroup/cpu/Netflix/cpu.shares)
+	FILE="/sys/fs/cgroup/cpu/$containername/cpu.shares"
+        if [ -f "$FILE" ]; then
+		output=$(cat "$FILE")
 		if [ "$output" -gt "1" -a "$output" -le "262144" ]; then
 			pass "$check"
 		else
