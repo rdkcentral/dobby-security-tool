@@ -32,9 +32,10 @@ Usage: ./dobby_security.sh -c Netflix [OPTIONS]
 Options:
   -c    mandatory  Container name (Ensure the container is running)
   -h    optional   Print this help message
-  -v	optional   prints the additional prints
+  -v	  optional   Print debug messages
   -t    optional   Comma delimited list of specific test(s) id
   -e    optional   Comma delimited list of specific test(s) id to exclude
+  -b    optional   Don't use colors (currently not supported)
 
 EOF
 }
@@ -44,7 +45,7 @@ EOF
 # If you add an option here, please
 # remember to update usage() above.
 
-while getopts bhl:c:t:e:v args
+while getopts bhc:t:e:v args
 do
   case $args in
   c) containername="$OPTARG" ;;
@@ -75,14 +76,11 @@ totalmanual=0
 header_info
 
 # Argument Validation
-if [ "$containername" == "" -o "$1" == "" ]; then
-	printtxt "${bldmgnclr} Error: 'Please enter valid container name' Ex:./dobby_security.sh -c Netflix [OPTIONS] ${txtrst}\n"
-	exit 1
-elif [ -n "$containername" ]; then
-	containername=$containername
+if [ -n "$containername" ]; then
 	input_valid
 else
-	echo " TEST"
+	printtxt "${bldmgnclr} Error: 'Please enter valid container name' Ex:./dobby_security.sh -c Netflix [OPTIONS] ${txtrst}\n"
+	exit 1
 fi
 
 

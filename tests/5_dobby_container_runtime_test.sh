@@ -150,46 +150,22 @@ test_5_5_1() {
         local output
 	local counter_1=0
 	local counter_2=0
-	local check_1
-	local check_2
-	local check_3
-        local Flag_1
-        local Flag_2
-        local Flag_3
+	local check
 	local ouputarr
 
         output=$(cat /proc/$Container_PID/mountinfo)
         while read line;
         do
-                check_1=$(echo $line | grep nosuid)
+                check=$(echo $line | grep nosuid | grep nodev | grep noexec)
 
-                if [ "$check_1" == "" ]; then
-                        Flag_1=0
-                else
-                        Flag_1=1
-                fi
-
-                check_2=$(echo $line | grep nodev)
-                if [ "$check_2" == "" ]; then
-                        Flag_2=0
-                else
-                        Flag_2=1
-                fi
-
-                check_3=$(echo $line | grep noexec)
-                if [ "$check_3" == "" ]; then
-                        Flag_3=0
-                else
-                        Flag_3=1
-                fi
-
-                if [ "$Flag_1" == "1" -a "$Flag_2" == "1" -a "$Flag_3" == "1" ]; then
-			counter_1=$((counter_1+1))                       
-                else
-			counter_2=$((counter_2+1))
+                if [ "$check" == "" ]; then
+						counter_2=$((counter_2+1))
                         line=$(echo $line | grep -o '/[^"]*')
                         ouputarr+=("$line")
+                else
+						counter_1=$((counter_1+1))
                 fi
+
 	done <<< "$output"
 	
 	if [ "$counter_2" == "0" -a  "$counter_1" -gt "0" ]; then
@@ -252,9 +228,9 @@ test_5_11() {
         local check="$testid - $desc"
         local output
 	
-	FILE="/sys/fs/cgroup/cpu/Netflix/cpu.shares"
-        if [ -f $FILE ]; then
-		output=$(cat /sys/fs/cgroup/cpu/Netflix/cpu.shares)
+	FILE="/sys/fs/cgroup/cpu/$containername/cpu.shares"
+        if [ -f "$FILE" ]; then
+		output=$(cat "$FILE")
 		if [ "$output" -gt "1" -a "$output" -le "262144" ]; then
 			pass "$check"
 		else
