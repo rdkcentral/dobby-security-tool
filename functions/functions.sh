@@ -31,6 +31,9 @@ local output
 output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $1}')
 if [ "$output" == "$containername" ]; then
 	echo "Container is running"
+
+    # this Container_PID is global for all tests to use
+    Container_PID=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $2}')
 else
 	printtxt "${bldmgnclr} Failed to find the container \n Please enter valid container name' Ex:./dobby_security.sh -c Netflix [OPTIONS] ${txtrst}\n"
 	exit 1
