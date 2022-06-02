@@ -177,7 +177,7 @@ test_5_5_1() {
 		if [ -n "$verbose" ]; then
         		for index in "${ouputarr[@]}"; do verbosetxt "${bldwhtclr} $index$1${txtrst}"; done
 		else
-			manualbodytxt"Use -v option to get more details about these mount points"
+			manualbodytxt "Use -v option to get more details about these mount points"
 		fi
 	fi
 }
