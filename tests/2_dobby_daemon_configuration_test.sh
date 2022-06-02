@@ -38,22 +38,29 @@ test_2_1() {
 
 test_2_3() {
 	local testid="2.3"
-        local desc="Ensure the logging level is set to 'info'"
-        local check="$testid - $desc"
-        local output
+	local desc="Ensure the logging level is set to 'info'"
+	local check="$testid - $desc"
+	local output
 	local output_1
-	
-	output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
-	output_1=$(cat $output/config.json | grep LOG_INFO | awk '{print $2}' | sed 's/"//g')
-	
-	if [ "$output_1" == "LOG_INFO"  ]; then
-                pass "$check"
-                return
-        fi
-        fail "$check"
+	local sink
 
-	
+	output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
+	sink=$(cat $output/config.json | grep sink | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
+
+	if [ "$sink" != "file" ]; then
+		output_1=$(cat $output/config.json | grep priority | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
+		if [ "$output_1" == "LOG_INFO"  ]; then
+			pass "$check"
+		else
+			fail "$check"
+			verbosetxt "Priority different than LOG_INFO = $output_1"
+		fi
+	else
+		pass "$check"
+		verbosetxt "Logging to file doesn't require setting level"
+	fi
 }
+
 test_2_9() {
 	local testid="2.9"
 	local desc="Enable user namespace support"
