@@ -27,15 +27,13 @@ test_5_1() {
         local check="$testid - $desc"
         local output_1
 	local output_2
-        local DobbyInit_PID
 	local FILE
 
         FILE="/sys/module/apparmor/parameters/enabled"
 	if [ -f $FILE ]; then
-                DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
                 output_1=$(cat /sys/module/apparmor/parameters/enabled)
                 if [ "$output_1" == "Y" ]; then
-                        output_2=$(cat /proc/$DobbyInit_PID/attr/current | grep -E 'complain|enforce')
+                        output_2=$(cat /proc/$Container_PID/attr/current | grep -E 'complain|enforce')
                         if [ "$output_2" == "" ]; then
                                 warn "$check"
                                 return
@@ -58,13 +56,10 @@ test_5_3() {
 	local check="$testid - $desc"
 	local output
 	local input
-	local DobbyInit_PID
 	local ouputarr
 	local status
 	
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-	
-	status=$(cat /proc/$DobbyInit_PID/status | grep CapPrm | awk '{print $2}')
+	status=$(cat /proc/$Container_PID/status | grep CapPrm | awk '{print $2}')
 	output=$(capsh --decode=$status | sed 's/.*=//g')
 	input=( cap_net_raw cap_dac_read_search cap_sys_module cap_sys_admin cap_sys_ptrace )
 	IFS=','
@@ -100,14 +95,10 @@ test_5_5() {
 	local output_2
 	local output_3
 	local var
-        local DobbyInit_PID
 	local readwrite=0
 	local fullymounted=0 
-	
 
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-
-	output=$(cat /proc/$DobbyInit_PID/mounts | grep -E 'ext|fat|sqaushfs')
+	output=$(cat /proc/$Container_PID/mounts | grep -E 'ext|fat|sqaushfs')
 	#(considering only *ext*, *fat*, *squash* filesystem types	
         
 	output_1=$(echo $output| grep  -E 'boot|dev|etc|lib|proc|sys|usr|bin|sbin|opt')
@@ -117,7 +108,7 @@ test_5_5() {
         	do
         		var=$(echo $output_1 | grep -E "(^| )$i( |$)")
 			if [ "$var" != "" ]; then
-				output_2=$(cat /proc/$DobbyInit_PID/mountinfo | grep -E "(^| )$i( |$)")
+				output_2=$(cat /proc/$Container_PID/mountinfo | grep -E "(^| )$i( |$)")
 				Fm_arr+=("$output_2");((fullymounted=fullymounted+1))
 				output_3=$(echo $output_2 | awk '{print $6}'| cut -d ',' -f 1)
 	
@@ -157,14 +148,12 @@ test_5_5_1() {
         local desc="Ensure nosuid,nodev,noexec options are present in mount"
         local check="$testid - $desc"
         local output
-        local DobbyInit_PID
 	local counter_1=0
 	local counter_2=0
 	local check
 	local ouputarr
 
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-        output=$(cat /proc/$DobbyInit_PID/mountinfo)
+        output=$(cat /proc/$Container_PID/mountinfo)
         while read line;
         do
                 check=$(echo $line | grep nosuid | grep nodev | grep noexec)
@@ -266,10 +255,8 @@ test_5_12() {
         local check="$testid - $desc"
         local output
         local output_1
-	local DobbyInit_PID
 
-        DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-        output=$(cat /proc/$DobbyInit_PID/mounts | grep "/ ")
+        output=$(cat /proc/$Container_PID/mounts | grep "/ ")
         output_1=$(echo $output | awk '{ print $4}'| cut -d ',' -f 1)
 
         if [ "$output_1" == "ro" ]; then
@@ -285,11 +272,9 @@ test_5_12_1() {
 	local testid="5.12.1"
         local desc="Ensure that /tmp is not bind-mounted directly into the container"
         local check="$testid - $desc"
-	local DobbyInit_PID
 	local output
 
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-	output=$(cat /proc/$DobbyInit_PID/mounts | grep "/tmp" | awk '{print $3}')
+	output=$(cat /proc/$Container_PID/mounts | grep "/tmp" | awk '{print $3}')
 	 
 	while read line;
         do
@@ -306,19 +291,16 @@ test_5_12_2() {
         local testid="5.12.2"
         local desc="Ensure that container rootfs directory is owned by the correct container uid/gid"
         local check="$testid - $desc"
-	local DobbyInit_PID
 	local read_uid
 	local read_gid
 	local uid
 	local gid
-
-        DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
         
-	read_uid=$(ls -n /proc/$DobbyInit_PID/root | awk '{print $3}')
-        read_gid=$(ls -n /proc/$DobbyInit_PID/root | awk '{print $4}')
+	read_uid=$(ls -n /proc/$Container_PID/root | awk '{print $3}')
+        read_gid=$(ls -n /proc/$Container_PID/root | awk '{print $4}')
 	
-	uid=$(cat /proc/$DobbyInit_PID/status | grep '^Uid:' | awk '{print $3}')
-	gid=$(cat /proc/$DobbyInit_PID/status | grep '^Gid:' | awk '{print $3}')
+	uid=$(cat /proc/$Container_PID/status | grep '^Uid:' | awk '{print $3}')
+	gid=$(cat /proc/$Container_PID/status | grep '^Gid:' | awk '{print $3}')
 
 	if [ "$read_uid" == "$uid" -a "$read_gid" == "$gid" ]; then
       		pass "$check"
@@ -332,11 +314,9 @@ test_5_12_3() {
 	local testid="5.12.3"
         local desc="Containers should use the Storage plugin to provide r/w storage areas where possible"
         local check="$testid - $desc"
-        local DobbyInit_PID
 	local output
 
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-	output=$(cat /proc/$DobbyInit_PID/mounts | grep '/dev/loop' )
+	output=$(cat /proc/$Container_PID/mounts | grep '/dev/loop' )
 	
 	if [ "$output" == "" ]; then
                 printf "%b\n" "${bldmgnclr}[MANUAL] $check ${bldcynclr}\n There are no loopback storage mounts present in container"
@@ -382,9 +362,8 @@ test_5_15() {
   	local nspid
 	local pid
 	
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-	pid=$(cat /proc/$DobbyInit_PID/status | grep -w 'Pid'| awk '{print $2}')
-	nspid=$(cat /proc/$DobbyInit_PID/status | grep -w 'NSpid'| awk '{print $3}')
+	pid=$(cat /proc/$Container_PID/status | grep -w 'Pid'| awk '{print $2}')
+	nspid=$(cat /proc/$Container_PID/status | grep -w 'NSpid'| awk '{print $3}')
     
 	if [ "$nspid" == "$pid" ]; then
       		fail "$check"
@@ -423,12 +402,10 @@ test_5_20() {
         local check="$testid - $desc"
         local output_1
         local output_2
-	local DobbyInit_PID
 	local DobbyDaemon_PID
 	
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
 	DobbyDaemon_PID=$(pidof DobbyDaemon)
-	output_1=$(readlink /proc/$DobbyInit_PID/ns/uts | cut -d "[" -f2- |  cut -d "]" -f1)
+	output_1=$(readlink /proc/$Container_PID/ns/uts | cut -d "[" -f2- |  cut -d "]" -f1)
 	output_2=$(readlink /proc/$DobbyDaemon_PID/ns/uts | cut -d "[" -f2- |  cut -d "]" -f1)
 	
 	 if [ "$output_1" == "$output_2" ]; then
@@ -446,12 +423,10 @@ test_5_20_1() {
         local check="$testid - $desc"
         local output_1
         local output_2
-        local DobbyInit_PID
         local DobbyDaemon_PID
 
-        DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
         DobbyDaemon_PID=$(pidof DobbyDaemon)
-        output_1=$(readlink /proc/$DobbyInit_PID/ns/mnt | cut -d "[" -f2- |  cut -d "]" -f1)
+        output_1=$(readlink /proc/$Container_PID/ns/mnt | cut -d "[" -f2- |  cut -d "]" -f1)
         output_2=$(readlink /proc/$DobbyDaemon_PID/ns/mnt | cut -d "[" -f2- |  cut -d "]" -f1)
 
          if [ "$output_1" == "$output_2" ]; then
@@ -468,10 +443,8 @@ test_5_21() {
         local desc="Ensure that seccomp profile is enabled for the container"
         local check="$testid - $desc"
         local output
-        local DobbyInit_PID
 
-        DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-        output=$(grep Seccomp /proc/$DobbyInit_PID/status | awk '{print $2}')
+        output=$(grep Seccomp /proc/$Container_PID/status | awk '{print $2}')
 
         if [ "$output" == "0" ]; then
         	fail "$check"
@@ -494,11 +467,9 @@ test_5_24() {
 	local testid="5.24"
         local desc="Ensure that cgroup is defined for the container"
         local check="$testid - $desc"
-	local DobbyInit_PID
 	local output
 
-        DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
-	output=$(cat /proc/$DobbyInit_PID/cgroup)
+	output=$(cat /proc/$Container_PID/cgroup)
 	while read line;
         do
 		line=$(echo $line | grep -o ':/[^"]*' | cut -d '/' -f2-)
@@ -577,10 +548,8 @@ test_5_31() {
         local desc="Ensure that the Dobby socket is not mounted inside any containers"
         local check="$testid - $desc"
         local output
-	local DobbyInit_PID
 
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')	
-	output=$(find /proc/$DobbyInit_PID/root/* -iname dobbyPty.sock 2>/dev/null)
+	output=$(find /proc/$Container_PID/root/* -iname dobbyPty.sock 2>/dev/null)
 	
     	if [ "$output" == "" ]; then
       		pass "$check"
