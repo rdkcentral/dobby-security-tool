@@ -52,9 +52,5 @@ test_4_8() {
    	fi
 		
         fail "$check"
-	if [ -n "$verbose" ]; then
-		var=$(ls -lh $output | cut -d "/" -f5-)
-		printtxt " $var"
-	fi
-
+	verbosetxt "$(ls -lh $output | cut -d "/" -f5-)"
 }

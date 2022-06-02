@@ -126,17 +126,17 @@ test_5_5() {
 		return
 	elif [ "$fullymounted" -gt "0" -a "$readwrite" == "0" ]; then
 		warn "$check"
+		verbosetxt "${bldcynclr} The following directories are mounted fully in ro mode$1${txtrst} "
 		if [ -n "$verbose" ]; then
-			printf "%b\n" "${bldcynclr} The following directories are mounted fully in ro mode$1${txtrst} "
-			for index in "${Fm_arr[@]}"; do printf "%b\n" "${bldwhtclr} $index $1${txtrst}"; done
+			for index in "${Fm_arr[@]}"; do verbosetxt "${bldwhtclr} $index $1${txtrst}"; done
 		fi
 		return
 
 	else
 		fail "$check"
+		verbosetxt "${bldcynclr} The following directories are mounted fully in rw mode$1${txtrst} "
 		if [ -n "$verbose" ]; then
-			printf "%b\n" "${bldcynclr} The following directories are mounted fully in rw mode$1${txtrst} "
-                	for index in "${Rw_arr[@]}"; do printf "%b\n" "${bldwhtclr} $index $1${txtrst}"; done
+			for index in "${Rw_arr[@]}"; do verbosetxt "${bldwhtclr} $index $1${txtrst}"; done
                 fi
 
 	fi
@@ -235,17 +235,12 @@ test_5_11() {
 			pass "$check"
 		else
 			fail "$check"
-			if [ -n "$verbose" ]; then
-                                printf "%b\n" "${bldcynclr} Invalid CPU cgroup share value : $output $1${txtrst} "
-                        fi
-
+			verbosetxt "${bldcynclr} Invalid CPU cgroup share value : $output $1${txtrst} "
 		fi
 
 	else
 		fail "$check"
-			if [ -n "$verbose" ]; then
-                        	printf "%b\n" "${bldcynclr} CPU cgroup is not set for the container $1${txtrst} "
-			fi
+		verbosetxt "${bldcynclr} CPU cgroup is not set for the container $1${txtrst} "
 	fi
 
 }
@@ -387,10 +382,8 @@ test_5_17() {
       		return
     	else
 		fail "$check"  
-		if [ -n "$verbose" ]; then
-			printf "%b\n" "${bldcynclr} These are the device nodes exposed to container with * or mknod permission"
-                	printf "%b\n" "${bldwhtclr} $output_1$output_2$1${txtrst} "
-		fi
+		verbosetxt "${bldcynclr} These are the device nodes exposed to container with * or mknod permission"
+		verbosetxt "${bldwhtclr} $output_1$output_2$1${txtrst} "
 	fi
 
 }
@@ -448,17 +441,13 @@ test_5_21() {
 
         if [ "$output" == "0" ]; then
         	fail "$check"
-                if [ -n "$verbose" ]; then
-                	printtxt "Seccomp is not enabled"
-                fi
-                return
+		verbosetxt "Seccomp is not enabled"
+		return
 	elif [ "$output" == "1" -o "$output" == "2" ]; then
 		pass "$check"
 	else
 		fail "$check"
-		if [ -n "$verbose" ]; then
-                        printtxt "Seccomp is not enabled"
-                fi
+		verbosetxt "Seccomp is not enabled"
 	fi
 
 }
@@ -505,9 +494,7 @@ test_5_24_1() {
           	pass "$check"
 	else
 		warn "$check"
-		if [ -n "$verbose" ]; then
-			printf "%b\n" "${bldcynclr} GPU cgroup is not supported in this platform"
-		fi
+		verbosetxt "${bldcynclr} GPU cgroup is not supported in this platform"
 	fi
 
 }

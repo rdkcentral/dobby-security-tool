@@ -81,17 +81,13 @@ test_2_17() {
 
         if [ "$output" == "0" ]; then
                 warn "$check"
-		if [ -n "$verbose" ]; then
-                        printtxt "Seccomp is not enabled"
-                fi
+		verbosetxt "Seccomp is not enabled"
                 return
         elif [ "$output" == "1" -o "$output" == "2" ]; then
                 pass "$check"
         else
                 warn "$check"
-                if [ -n "$verbose" ]; then
-                        printtxt "Seccomp is not enabled"
-                fi
+		verbosetxt "Seccomp is not enabled"
         fi
 
 

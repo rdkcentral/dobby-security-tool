@@ -34,6 +34,13 @@ printtxt () {
   printf "%b\n" "$1"
 }
 
+# Verbose print
+verbosetxt() {
+	if [ -n "$verbose" ]; then
+		printf "%b\n" "$1"
+	fi
+}
+
 # Info print
 info () {
  printf "%b\n" "${bldbluclr}[INFO]${txtrst} $1"
