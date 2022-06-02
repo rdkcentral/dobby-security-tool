@@ -65,6 +65,17 @@ warn () {
 	totalwarn=$((totalwarn + 1))
 }
 
+# Manual header Print
+manual () {
+  printf "%b\n" "${bldmgnclr}[MANUAL] $1${txtrst} "
+  totalmanual=$((totalmanual+1))
+}
+
+# Manual body text
+manualbodytxt () {
+  printf "%b\n" "${bldcynclr} $1${txtrst}"
+}
+
 header () {
   printf "%b\n" "${bldcynclr}$1${txtrst}\n"
 }

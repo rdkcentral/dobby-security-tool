@@ -150,43 +150,36 @@ test_5_5_1() {
         local output
 	local counter_1=0
 	local counter_2=0
-	local check
+	local flags
 	local ouputarr
 
         output=$(cat /proc/$Container_PID/mountinfo)
         while read line;
         do
-                check=$(echo $line | grep nosuid | grep nodev | grep noexec)
+                flags=$(echo $line | grep nosuid | grep nodev | grep noexec)
 
-                if [ "$check" == "" ]; then
-						counter_2=$((counter_2+1))
+                if [ "$flags" == "" ]; then
+			counter_2=$((counter_2+1))
                         line=$(echo $line | grep -o '/[^"]*')
                         ouputarr+=("$line")
                 else
-						counter_1=$((counter_1+1))
+			counter_1=$((counter_1+1))
                 fi
 
 	done <<< "$output"
 	
+	manual "$check"
 	if [ "$counter_2" == "0" -a  "$counter_1" -gt "0" ]; then
-		 printf "%b\n" "${bldmgnclr}[MANUAL] $check \n${bldcynclr} There are no mount points without 'nosuid,nodev,noexec' options.$1${txtrst} "
-
+		manualbodytxt "There are no mount points without 'nosuid,nodev,noexec' options."
 	else
-	
+		manualbodytxt "There are mounts without 'nosuid,nodev,noexec' options"
+		manualbodytxt "Validate that correct mount options are used wherever applicable"
 		if [ -n "$verbose" ]; then
-			printf "%b\n" "${bldmgnclr}[MANUAL] $check \n${bldcynclr} These are the mounts without 'nosuid,nodev,noexec' options$1${txtrst} "
-			printf "%b" "${bldcynclr} Validate that correct mount options are used wherever applicable"
-        		for index in "${ouputarr[@]}"; do printf "%b" "${bldwhtclr} $index\n$1${txtrst}"; done
+        		for index in "${ouputarr[@]}"; do verbosetxt "${bldwhtclr} $index$1${txtrst}"; done
 		else
-			printf "%b\n" "${bldmgnclr}[MANUAL] $check ${bldcynclr}\n There are mount points without 'nosuid,nodev,noexec' options$1${txtrst} "
-			printf "%b\n" "${bldcynclr} Validate that correct mount options are used wherever applicable."\
-			" Use -v option to get more details about these mount points$1${txtrst}"
+			manualbodytxt "Use -v option to get more details about these mount points"
 		fi
-
-
 	fi
-	totalmanual=$((totalmanual+1))
-	
 }
 
 test_5_9() {
@@ -312,24 +305,15 @@ test_5_12_3() {
 	local output
 
 	output=$(cat /proc/$Container_PID/mounts | grep '/dev/loop' )
-	
-	if [ "$output" == "" ]; then
-                printf "%b\n" "${bldmgnclr}[MANUAL] $check ${bldcynclr}\n There are no loopback storage mounts present in container"
-		printf "%b\n" " Ensure that storage plugin is used to persist container data wherever applicable.$1${txtrst}"
-        else
-		if [ -n "$verbose" ]; then
-			printf "%b\n" "${bldmgnclr}[MANUAL] $check ${bldcynclr}\n These are the loopback storage mounts present in container"
-        		printf "%b\n" "${bldwhtclr} $output"
-			printf "%b" "${bldcynclr} Validate that storage plugin is used to persist container data wherever applicable.$1${txtrst}\n"
-		else
-        		printf "%b\n" "${bldmgnclr}[MANUAL] $check ${bldcynclr}\n There are loopback storage mounts present in container"
-        		printf "%b\n" "${bldcynclr} Validate that storage plugin is used to persist container data wherever applicable."\
-			" Use -v option to get more details$1${txtrst} "
-	
-		fi
-	fi
 
-	totalmanual=$((totalmanual+1))
+	manual "$check"
+	if [ "$output" == "" ]; then
+                manualbodytxt "There are no loopback storage mounts present in container"
+        else
+		manualbodytxt "There are the loopback storage mounts present in container. Use -v option if they are not visible"
+		verbosetxt "${bldwhtclr} $output $1${txtrst}"
+	fi
+	manualbodytxt "Ensure that storage plugin is used to persist container data wherever applicable."
 }
 
 test_5_12_4() {
