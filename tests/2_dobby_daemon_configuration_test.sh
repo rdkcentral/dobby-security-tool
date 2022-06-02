@@ -40,7 +40,6 @@ test_2_3() {
 	local testid="2.3"
         local desc="Ensure the logging level is set to 'info'"
         local check="$testid - $desc"
-        local DobbyInit_PID
         local output
 	local output_1
 	
@@ -59,12 +58,9 @@ test_2_9() {
 	local testid="2.9"
 	local desc="Enable user namespace support"
 	local check="$testid - $desc"
-	local DobbyInit_PID
 	local output
-  
-	DobbyInit_PID=$(ps -fe | grep DobbyInit | grep $containername | awk '{print $2}')
 
-	output=$(cat /proc/$DobbyInit_PID/status | grep '^Uid:' | awk '{print $3}')
+	output=$(cat /proc/$Container_PID/status | grep '^Uid:' | awk '{print $3}')
    
     	if [ "$output" == "0"  ]; then
     		fail "$check"
