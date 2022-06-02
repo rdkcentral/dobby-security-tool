@@ -365,7 +365,7 @@ test_5_12_4() {
         local output_1
 
         output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
-        output_1=$(cat $output/config.json | grep 'rootfsPropagation'  | awk '{print $2}' | sed 's/"//g')
+        output_1=$(cat $output/config.json | grep 'rootfsPropagation'  | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
 
         if [ "$output_1" == "rprivate"  ]; then
                 pass "$check"
