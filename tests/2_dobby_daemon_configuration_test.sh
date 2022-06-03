@@ -47,7 +47,10 @@ test_2_3() {
 	output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
 	sink=$(cat $output/config.json | grep sink | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
 
-	if [ "$sink" != "file" ]; then
+	# tolower sink, as it is case insensitive inside Dobby
+	sink=$(sed -e 's/\(.*\)/\L\1/' <<< "$sink")
+
+	if [ "$sink" != "file" -a "$sink" != "devnull" ]; then
 		output_1=$(cat $output/config.json | grep priority | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
 		if [ "$output_1" == "LOG_INFO"  ]; then
 			pass "$check"
@@ -57,7 +60,7 @@ test_2_3() {
 		fi
 	else
 		pass "$check"
-		verbosetxt "Logging to file doesn't require setting level"
+		verbosetxt "Logging to file or devnull doesn't require setting level"
 	fi
 }
 
