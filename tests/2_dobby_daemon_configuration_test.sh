@@ -48,7 +48,7 @@ test_2_3() {
 	sink=$(cat $output/config.json | grep sink | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
 
 	# tolower sink, as it is case insensitive inside Dobby
-	sink=$(sed -e 's/\(.*\)/\L\1/' <<< "$sink")
+	sink=$(echo "$sink" | awk '{print tolower($0)}')
 
 	if [ "$sink" != "file" -a "$sink" != "devnull" ]; then
 		output_1=$(cat $output/config.json | grep priority | awk '{print $2}' | sed 's/"//g' | sed 's/,//g')
