@@ -59,6 +59,7 @@ test_5_3() {
 	local ouputarr
 	local status
 	
+	command -v capsh >/dev/null 2>&1  || { warn "$check";printf "%b\n" "${bldcynclr} Capsh command is required for this test$1${txtrst}";return; }
 	status=$(cat /proc/$Container_PID/status | grep CapPrm | awk '{print $2}')
 	output=$(capsh --decode=$status | sed 's/.*=//g')
 	
@@ -76,6 +77,7 @@ test_5_3() {
 		do
 			if [ "${ouputarr[$i]}" == "${input[$j]}" ]; then
 				fail "$check"
+				verbosetxt "${ouputarr[$i]} capability is permitted for container"
 				return
 			fi
 		done
