@@ -59,27 +59,25 @@ test_5_3() {
 	local ouputarr
 	local status
 	
+	command -v capsh >/dev/null 2>&1  || { warn "$check";printf "%b\n" "${bldcynclr} Capsh command is required for this test$1${txtrst}";return; }
 	status=$(cat /proc/$Container_PID/status | grep CapPrm | awk '{print $2}')
 	output=$(capsh --decode=$status | sed 's/.*=//g')
+	
 	input=( cap_net_raw cap_dac_read_search cap_sys_module cap_sys_admin cap_sys_ptrace )
 	IFS=','
+	
 	read -a ouputarr <<<"$output"
+	output_length=${#ouputarr[@]}
+	input_length=${#input[@]}
+	
 	#accessing each element of array
-	for i in "${!ouputarr[@]}";
+	for (( i=0; i<output_length; i++ ));
 	do
-		for j in "${!input[@]}";
+		for (( j=0; j<input_length; j++ ));
 		do
-			if [ "${input[$j]}" == "${ouputarr[$i]}" ]; then
+			if [ "${ouputarr[$i]}" == "${input[$j]}" ]; then
 				fail "$check"
-				return
-			elif [ "${input[$j]}" == "${ouputarr[$i]}" ]; then
-				fail "$check"
-				return
-			elif [ "${input[$j]}" == "${ouputarr[$i]}" ]; then
-				fail "$check"
-				return
-			elif [ "${input[$j]}" == "${ouputarr[$i]}" ]; then
-				fail "$check"
+				verbosetxt "${ouputarr[$i]} capability is permitted for container"
 				return
 			fi
 		done
