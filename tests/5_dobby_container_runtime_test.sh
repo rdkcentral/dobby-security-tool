@@ -502,14 +502,23 @@ test_5_29() {
 	local desc="Ensure that Dobby's default bridge "dobby0" is used"
 	local check="$testid - $desc"
 	local output
+	local file
+	
+	file="/sys/class/net/dobby0"
+        if [ -d $file ]; then
+                output=$(grep -irns "veth" /tmp/dobby/plugin/networking | grep $containername)
+                if [ "$output" == "" ]; then
+                        fail "$check"
+                        verbosetxt "${bldcynclr}Container is not using NAT mode networking$1${txtrst} "
+                        return
+                else
+                        pass "$check"
+                fi
+        else
+                fail "$check"
+                verbosetxt "${bldcynclr}Container is not using dobby0 bridged interface$1${txtrst} "
+        fi
   
-	output=$(brctl show | grep dobby0 | awk '{ print $1}')
-    
-    	if [ "$output" == "dobby0" ]; then
-    		pass "$check"
-      		return
-    	fi
-    	fail "$check"
 }
 
 test_5_31() {

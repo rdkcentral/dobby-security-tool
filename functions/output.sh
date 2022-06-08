@@ -94,14 +94,4 @@ req_programs() {
   for p in $1; do
     command -v "$p" >/dev/null 2>&1 || { printf "Required program not found: %s\n" "$p"; exit 1; }
   done
-  if command -v ss >/dev/null 2>&1; then
-    netbin=ss
-    return
-  fi
-  if command -v netstat >/dev/null 2>&1; then
-    netbin=netstat
-    return
-  fi
-  echo "ss or netstat command not found."
-  exit 1
 }
