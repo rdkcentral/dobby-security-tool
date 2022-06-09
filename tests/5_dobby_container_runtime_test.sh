@@ -52,37 +52,53 @@ test_5_1() {
 
 test_5_3() {
 	local testid="5.3"
-	local desc="Ensure that Linux kernel capabilities are restricted within containers"
-	local check="$testid - $desc"
-	local output
-	local input
-	local ouputarr
-	local status
-	
-	command -v capsh >/dev/null 2>&1  || { warn "$check";printf "%b\n" "${bldcynclr} Capsh command is required for this test$1${txtrst}";return; }
-	status=$(cat /proc/$Container_PID/status | grep CapPrm | awk '{print $2}')
-	output=$(capsh --decode=$status | sed 's/.*=//g')
-	
-	input=( cap_net_raw cap_dac_read_search cap_sys_module cap_sys_admin cap_sys_ptrace )
-	IFS=','
-	
-	read -a ouputarr <<<"$output"
-	output_length=${#ouputarr[@]}
-	input_length=${#input[@]}
-	
-	#accessing each element of array
-	for (( i=0; i<output_length; i++ ));
-	do
-		for (( j=0; j<input_length; j++ ));
-		do
-			if [ "${ouputarr[$i]}" == "${input[$j]}" ]; then
-				fail "$check"
-				verbosetxt "${ouputarr[$i]} capability is permitted for container"
-				return
-			fi
-		done
-	done
-	pass "$check"
+        local desc="Ensure that Linux kernel capabilities are restricted within containers"
+        local check="$testid - $desc"
+        local output
+        local input
+        local ouputarr
+        local status
+
+        status=$(cat /proc/$Container_PID/status | grep CapPrm | awk '{print $2}')
+
+        if command -v capsh >/dev/null 2>&1; then
+                output=$(capsh --decode=$status | sed 's/.*=//g')
+
+                input=( cap_net_raw cap_dac_read_search cap_sys_module cap_sys_admin cap_sys_ptrace )
+                IFS=','
+
+                read -a ouputarr <<<"$output"
+                output_length=${#ouputarr[@]}
+                input_length=${#input[@]}
+
+                #accessing each element of array
+                for (( i=0; i<output_length; i++ ));
+                do
+                        for (( j=0; j<input_length; j++ ));
+                        do
+                                if [ "${ouputarr[$i]}" == "${input[$j]}" ]; then
+                                        fail "$check"
+                                        verbosetxt "${ouputarr[$i]} capability is permitted for container"
+                                        return
+                                fi
+                        done
+                done
+                pass "$check"
+        else
+		hex_value=$((16#$status))
+                #cap_dac_read_search 2 #cap_net_raw 13 #cap_sys_module 16 #cap_sys_ptrace 19 #cap_sys_admin  21
+                mask=$(((0x1 << 2) | (0x1 << 13) | (0x1 << 16) | (0x1 << 19) | (0x1 << 21)))
+                result=$((hex_value & mask))
+                if [ "$result" != 0 ]; then
+                        fail "$check"
+                        verbosetxt "${bldcynclr}Restricted capability is permitted for container$1${txtrst} "
+                        return
+                else
+                        pass "$check"
+                fi
+
+        fi
+
 }
 
 test_5_5() {
