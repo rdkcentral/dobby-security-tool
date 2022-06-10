@@ -24,22 +24,19 @@ crunVersion=$(crun --version)
 
 
 usage () {
-  cat <<EOF
-
-Checks for dozens of common best-practices around deploying Dobby containers in production.
-Based on the CIS Docker Benchmark 1.3.1.
-Usage: ./dobby_security.sh -c Netflix [OPTIONS] 
-Options:
-  -c    mandatory  Container name (Ensure the container is running)
-  -h    optional   Print this help message
-  -v	  optional   Print debug messages
-  -t    optional   Comma delimited list of specific test(s) id
-  -e    optional   Comma delimited list of specific test(s) id to exclude
-  -b    optional   Don't use colors (currently not supported)
-
+cat <<EOF
+    Checks for dozens of common best-practices around deploying Dobby containers in production.
+    Based on the CIS Docker Benchmark 1.3.1.
+    Usage: ./dobby_security.sh -c Netflix [OPTIONS]
+    Options:
+      -c    mandatory  Container name (Ensure the container is running)
+      -h    optional   Print this help message
+      -v    optional   Print debug messages
+      -t    optional   Comma delimited list of specific test(s) id
+      -e    optional   Comma delimited list of specific test(s) id to exclude
+      -b    optional   Don't use colors (currently not supported)
 EOF
 }
-
 
 # Get the flags
 # If you add an option here, please
@@ -47,16 +44,15 @@ EOF
 
 while getopts bhc:t:e:v args
 do
-  case $args in
-  c) containername="$OPTARG" ;;
-  t) tests="$OPTARG" ;;
-  e) testexclude="$OPTARG" ;;
-  b) nocolor="nocolor";;
-  v) verbose="verbose";;
-  h) usage; exit 0 ;;
-  esac
+    case $args in
+        c) containername="$OPTARG" ;;
+  	t) tests="$OPTARG" ;;
+  	e) testexclude="$OPTARG" ;;
+  	b) nocolor="nocolor";;
+  	v) verbose="verbose";;
+  	h) usage; exit 0 ;;
+    esac
 done
-
 
 # Load outside scripts
 . ./functions/output.sh
@@ -77,17 +73,17 @@ header_info
 
 # Argument Validation
 if [ -n "$containername" ]; then
-	input_valid
+    input_valid
 else
-	printtxt "${bldmgnclr} Error: 'Please enter valid container name' Ex:./dobby_security.sh -c Netflix [OPTIONS] ${txtrst}\n"
-	exit 1
+    printtxt "${bldmgnclr} Error: 'Please enter valid container name' Ex:./dobby_security.sh -c Netflix [OPTIONS] ${txtrst}\n"
+    exit 1
 fi
 
 
 # Warn if not root
 if [ "$(id -u)" != "0" ]; then
-   printtxt "${bldmgnclr} Warning: 'Some tests might require root to run' ${txtrst}\n"
-  sleep 3
+    printtxt "${bldmgnclr} Warning: 'Some tests might require root to run' ${txtrst}\n"
+    sleep 3
 fi
 
 printtxt "Initializing the test $(date)\n"
@@ -95,59 +91,58 @@ printtxt "Initializing the test $(date)\n"
 # Load all the tests from tests/ and run them
 main() {
 
-for test in tests/*.sh; do
-    . ./"$test"
-  done
+    for test in tests/*.sh; do
+        . ./"$test"  
+    done
 
 
-  if [ -z "$tests" ] && [ ! "$testexclude" ]; then
-    # No options just run
-    all
-  elif [ -z "$tests" ]; then
-    # No tests defined but excludes defined set to calls in all() function
-    tests=$(sed -ne "/all() {/,/}/{/{/d; /}/d; p}" functions/functions.sh)
-  fi
+    if [ -z "$tests" ] && [ ! "$testexclude" ]; then
+        # No options just run
+        all
+    elif [ -z "$tests" ]; then
+        # No tests defined but excludes defined set to calls in all() function
+    		tests=$(sed -ne "/all() {/,/}/{/{/d; /}/d; p}" functions/functions.sh)
+    fi
    
-  for t in $(echo "$tests" | sed "s/,/ /g"); do
-    if ! command -v "$t" 2>/dev/null 1>&2; then
-      echo "Test \"$t\" doesn't seem to exist."
-      continue
-    fi
-    if [ -z "$testexclude" ]; then
-      # No excludes just run the checks specified
-      "$t"
-    else
-      # Exludes specified and test exists
-      testexcluded="$(echo ",$testexclude" | sed -e 's/^/\^/g' -e 's/,/\$|/g' -e 's/$/\$/g')"
-
-      if echo "$t" | grep -E "$testexcluded" 2>/dev/null 1>&2; then
-        # Excluded
-        continue
-      elif echo "$t" | grep -vE 'test_[0-9]| test_[a-z]' 2>/dev/null 1>&2; then
-        # Function not a check, fill loop_tests with all check from function
-        loop_tests="$(sed -ne "/$t() {/,/}/{/{/d; /}/d; p}" functions/functions.sh)"
-      else
-        # Just one test
-        loop_tests="$t"
-      fi
-
-      for lc in $loop_tests; do
-        if echo "$lc" | grep -vE "$testexcluded" 2>/dev/null 1>&2; then
-          # Not excluded
-          "$lc"
+    for t in $(echo "$tests" | sed "s/,/ /g"); do
+        if ! command -v "$t" 2>/dev/null 1>&2; then
+            echo "Test \"$t\" doesn't seem to exist."
+            continue
         fi
-      done
-    fi
-  done
-  
-totalcount=$(($totalpass+$totalfail+$totalwarn+$totalmanual))
-printtxt "\n\n${bldbluclr}Test Results Summary${txtrst}"
-printtxt "${txtrst}Total Pass 		    : $totalpass"
-printtxt "${txtrst}Total Fail 		    : $totalfail"
-printtxt "${txtrst}Total Warnings 	            : $totalwarn"
-printtxt "${txtrst}Manual validation required  : $totalmanual"
-printtxt "${txtrst}Total tests		    : $totalcount\n"
+        if [ -z "$testexclude" ]; then
+      	    # No excludes just run the checks specified
+      	    "$t"
+        else
+            # Exludes specified and test exists
+            testexcluded="$(echo ",$testexclude" | sed -e 's/^/\^/g' -e 's/,/\$|/g' -e 's/$/\$/g')"
 
+            if echo "$t" | grep -E "$testexcluded" 2>/dev/null 1>&2; then
+                # Excluded
+                continue
+            elif echo "$t" | grep -vE 'test_[0-9]| test_[a-z]' 2>/dev/null 1>&2; then
+                # Function not a check, fill loop_tests with all check from function
+                loop_tests="$(sed -ne "/$t() {/,/}/{/{/d; /}/d; p}" functions/functions.sh)"
+            else
+                # Just one test
+                loop_tests="$t"
+            fi
+
+            for lc in $loop_tests; do
+                if echo "$lc" | grep -vE "$testexcluded" 2>/dev/null 1>&2; then
+                    # Not excluded
+                    "$lc"
+                fi
+            done
+        fi
+    done
+  
+    totalcount=$(($totalpass+$totalfail+$totalwarn+$totalmanual))
+    printtxt "\n\n${bldbluclr}Test Results Summary${txtrst}"
+    printtxt "${txtrst}Total Pass 		    : $totalpass"
+    printtxt "${txtrst}Total Fail 		    : $totalfail"
+    printtxt "${txtrst}Total Warnings 	            : $totalwarn"
+    printtxt "${txtrst}Manual validation required  : $totalmanual"
+    printtxt "${txtrst}Total tests		    : $totalcount\n"
 }
 
 main "$@"

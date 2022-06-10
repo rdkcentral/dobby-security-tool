@@ -31,53 +31,53 @@ txtrst='\033[0m'	   # No Color
 
 # Print the text
 printtxt () {
-  printf "%b\n" "$1"
+    printf "%b\n" "$1"
 }
 
 # Verbose print
 verbosetxt() {
-	if [ -n "$verbose" ]; then
-		printf "%b\n" "$1"
-	fi
+    if [ -n "$verbose" ]; then
+        printf "%b\n" "$1"
+    fi
 }
 
 # Info print
 info () {
- printf "%b\n" "${bldbluclr}[INFO]${txtrst} $1"
+    printf "%b\n" "${bldbluclr}[INFO]${txtrst} $1"
 }
 
 
 # Pass Print
 pass () {
-printf "%b\n" "${bldgrnclr}[PASS] $1${txtrst} "
-totalpass=$((totalpass + 1))
+    printf "%b\n" "${bldgrnclr}[PASS] $1${txtrst} "
+    totalpass=$((totalpass + 1))
 }
 
 # Fail Print
 fail () {
- printf "%b\n" "${bldredclr}[FAIL] $1${txtrst} "
+    printf "%b\n" "${bldredclr}[FAIL] $1${txtrst} "
     totalfail=$((totalfail + 1))
 }
 
 # Warning Print
 warn () {
     printf "%b\n" "${bldylwclr}[WARN] $1${txtrst} "
-	totalwarn=$((totalwarn + 1))
+    totalwarn=$((totalwarn + 1))
 }
 
 # Manual header Print
 manual () {
-  printf "%b\n" "${bldmgnclr}[MANUAL] $1${txtrst} "
-  totalmanual=$((totalmanual+1))
+    printf "%b\n" "${bldmgnclr}[MANUAL] $1${txtrst} "
+    totalmanual=$((totalmanual+1))
 }
 
 # Manual body text
 manualbodytxt () {
-  printf "%b\n" "${bldcynclr} $1${txtrst}"
+    printf "%b\n" "${bldcynclr} $1${txtrst}"
 }
 
 header () {
-  printf "%b\n" "${bldcynclr}$1${txtrst}\n"
+    printf "%b\n" "${bldcynclr}$1${txtrst}\n"
 }
 
 # Header Version details
@@ -91,7 +91,7 @@ header "# ======================================================================
 
 # Check for required program(s)
 req_programs() {
-  for p in $1; do
-    command -v "$p" >/dev/null 2>&1 || { printf "Required program not found: %s\n" "$p"; exit 1; }
-  done
+    for p in $1; do
+        command -v "$p" >/dev/null 2>&1 || { printf "Required program not found: %s\n" "$p"; exit 1; }
+    done
 }
