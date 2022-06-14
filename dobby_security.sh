@@ -22,19 +22,20 @@ version=0.1
 DobbyVersion=$(DobbyDaemon --version)
 crunVersion=$(crun --version)
 
-
 usage () {
-cat <<EOF
-    Checks for dozens of common best-practices around deploying Dobby containers in production.
-    Based on the CIS Docker Benchmark 1.3.1.
-    Usage: ./dobby_security.sh -c Netflix [OPTIONS]
-    Options:
-      -c    mandatory  Container name (Ensure the container is running)
-      -h    optional   Print this help message
-      -v    optional   Print debug messages
-      -t    optional   Comma delimited list of specific test(s) id
-      -e    optional   Comma delimited list of specific test(s) id to exclude
-      -b    optional   Don't use colors (currently not supported)
+    cat <<EOF
+
+Checks for dozens of common best-practices around deploying Dobby containers in production.
+Based on the CIS Docker Benchmark 1.3.1.
+Usage: ./dobby_security.sh -c Netflix [OPTIONS]
+Options:
+  -c    mandatory  Container name (Ensure the container is running)
+  -h    optional   Print this help message
+  -v    optional   Print debug messages
+  -t    optional   Comma delimited list of specific test(s) id
+  -e    optional   Comma delimited list of specific test(s) id to exclude
+  -b    optional   Don't use colors (currently not supported)
+
 EOF
 }
 
