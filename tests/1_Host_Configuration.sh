@@ -27,7 +27,7 @@ test_1_2_2() {
     local check="$testid - $desc"
     local output=$DobbyVersion
     local crun=$crunVersion
- 
+
     crun=$(echo $crun | sed 's/commit[^-]*$//')
     manual "$check"
     manualbodytxt "Dobby $output \n $crun "

@@ -27,14 +27,14 @@ test_4_1() {
     local check="$testid - $desc"
     local child_pid
     local output
-	
+
     child_pid=$(ps h --ppid $Container_PID -o pid | sed 's/ //g')
     output=$(cat /proc/$child_pid/status | grep '^Uid:' | awk '{print $3}')
     if [ "$output" == "0"  ]; then
         fail "$check"
         return
     fi
-    	
+
     pass "$check"
 }
 
@@ -49,7 +49,7 @@ test_4_8() {
         pass "$check"
         return
     fi
-		
+
     fail "$check"
     verbosetxt "$(ls -lh $output | cut -d "/" -f5-)"
 }

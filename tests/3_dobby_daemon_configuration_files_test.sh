@@ -36,7 +36,7 @@ test_3_1() {
         fail "$check Wrong ownership for $file"
         return
     fi
- 
+
     warn "$check [ $file file is not found]"
 }
 
@@ -53,9 +53,9 @@ test_3_2() {
             return
         fi
         fail "$check"
-    	return
+        return
     fi
-  
+
     warn "$check [ $file file is not found]"
 }
 
@@ -63,12 +63,12 @@ test_3_3() {
     local testid="3.3"
     local desc="Ensure that dobbyPty.sock file ownership is set to root:root"
     local check="$testid - $desc"
- 
+
     if [ "$(stat -c %u%g "/tmp/dobbyPty.sock")" -eq 00 ]; then
-        pass "$check" 
+        pass "$check"
         return
     fi
-    	
+
     fail "$check"
 }
 
@@ -81,7 +81,7 @@ test_3_4() {
         pass "$check"
         return
     fi
-    	
+
     fail "$check"
 }
 
@@ -100,7 +100,7 @@ test_3_17() {
         fail "$check"
         return
     fi
-  
+
     warn "$check [ $file file is not found]"
 }
 
@@ -110,7 +110,7 @@ test_3_18() {
     local check="$testid - $desc"
     local file
 
-    file="/etc/dobby.json"  
+    file="/etc/dobby.json"
     if [ -f $file ]; then
         if [ "$(stat -c %a "$file")" -le 644 ]; then
             pass "$check"
@@ -119,6 +119,6 @@ test_3_18() {
         fail "$check"
         return
     fi
-  
+
     warn "$check [ $file file is not found]"
 }

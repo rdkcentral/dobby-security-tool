@@ -46,11 +46,11 @@ while getopts bhc:t:e:v args
 do
     case $args in
         c) containername="$OPTARG" ;;
-  	t) tests="$OPTARG" ;;
-  	e) testexclude="$OPTARG" ;;
-  	b) nocolor="nocolor";;
-  	v) verbose="verbose";;
-  	h) usage; exit 0 ;;
+        t) tests="$OPTARG" ;;
+        e) testexclude="$OPTARG" ;;
+        b) nocolor="nocolor";;
+        v) verbose="verbose";;
+        h) usage; exit 0 ;;
     esac
 done
 
@@ -92,26 +92,25 @@ printtxt "Initializing the test $(date)\n"
 main() {
 
     for test in tests/*.sh; do
-        . ./"$test"  
+        . ./"$test"
     done
-
 
     if [ -z "$tests" ] && [ ! "$testexclude" ]; then
         # No options just run
         all
     elif [ -z "$tests" ]; then
         # No tests defined but excludes defined set to calls in all() function
-    		tests=$(sed -ne "/all() {/,/}/{/{/d; /}/d; p}" functions/functions.sh)
+            tests=$(sed -ne "/all() {/,/}/{/{/d; /}/d; p}" functions/functions.sh)
     fi
-   
+
     for t in $(echo "$tests" | sed "s/,/ /g"); do
         if ! command -v "$t" 2>/dev/null 1>&2; then
             echo "Test \"$t\" doesn't seem to exist."
             continue
         fi
         if [ -z "$testexclude" ]; then
-      	    # No excludes just run the checks specified
-      	    "$t"
+            # No excludes just run the checks specified
+            "$t"
         else
             # Exludes specified and test exists
             testexcluded="$(echo ",$testexclude" | sed -e 's/^/\^/g' -e 's/,/\$|/g' -e 's/$/\$/g')"
@@ -135,14 +134,14 @@ main() {
             done
         fi
     done
-  
+
     totalcount=$(($totalpass+$totalfail+$totalwarn+$totalmanual))
     printtxt "\n\n${bldbluclr}Test Results Summary${txtrst}"
-    printtxt "${txtrst}Total Pass 		    : $totalpass"
-    printtxt "${txtrst}Total Fail 		    : $totalfail"
-    printtxt "${txtrst}Total Warnings 	            : $totalwarn"
-    printtxt "${txtrst}Manual validation required  : $totalmanual"
-    printtxt "${txtrst}Total tests		    : $totalcount\n"
+    printtxt "${txtrst}Total Pass                   : $totalpass"
+    printtxt "${txtrst}Total Fail                   : $totalfail"
+    printtxt "${txtrst}Total Warnings               : $totalwarn"
+    printtxt "${txtrst}Manual validation required   : $totalmanual"
+    printtxt "${txtrst}Total tests                  : $totalcount\n"
 }
 
 main "$@"

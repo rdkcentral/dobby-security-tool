@@ -19,7 +19,6 @@
 
 test_5() {
     printtxt "\n${bldbluclr}5. Dobby Container Runtime Test ${txtrst}"
-       
 }
 
 test_5_1() {
@@ -110,11 +109,11 @@ test_5_5() {
     local output_3
     local var
     local readwrite=0
-    local fullymounted=0 
+    local fullymounted=0
 
     output=$(cat /proc/$Container_PID/mounts | grep -E 'ext|fat|sqaushfs')
-    #(considering only *ext*, *fat*, *squash* filesystem types	
-        
+    #(considering only *ext*, *fat*, *squash* filesystem types
+
     output_1=$(echo $output| grep  -E 'boot|dev|etc|lib|proc|sys|usr|bin|sbin|opt')
     input=( "/boot" "/dev" "/etc" "/lib" "/proc" "/sys" "/usr" "/bin" "/sbin" "/opt" )
 
@@ -125,13 +124,13 @@ test_5_5() {
             output_2=$(cat /proc/$Container_PID/mountinfo | grep -E "(^| )$i( |$)")
             Fm_arr+=("$output_2");((fullymounted=fullymounted+1))
             output_3=$(echo $output_2 | awk '{print $6}'| cut -d ',' -f 1)
-	
+
             if [ "$output_3" == "rw" ]; then
                 ((readwrite=readwrite+1))
                 Rw_arr+=("$output_2")
             fi
-				
-        fi	
+
+        fi
 
     done
 
@@ -141,8 +140,8 @@ test_5_5() {
     elif [ "$fullymounted" -gt "0" -a "$readwrite" == "0" ]; then
         warn "$check"
         verbosetxt "${bldcynclr} The following directories are mounted fully in ro mode$1${txtrst} "
-	if [ -n "$verbose" ]; then
-	    for index in "${Fm_arr[@]}"; do verbosetxt "${bldwhtclr} $index $1${txtrst}"; done
+        if [ -n "$verbose" ]; then
+            for index in "${Fm_arr[@]}"; do verbosetxt "${bldwhtclr} $index $1${txtrst}"; done
         fi
         return
 
@@ -180,7 +179,7 @@ test_5_5_1() {
         fi
 
     done <<< "$output"
-	
+
     manual "$check"
     if [ "$counter_2" == "0" -a  "$counter_1" -gt "0" ]; then
         manualbodytxt "There are no mount points without 'nosuid,nodev,noexec' options."
@@ -200,14 +199,14 @@ test_5_9() {
     local desc="Ensure that the host's network namespace is not shared"
     local check="$testid - $desc"
     local output
-	
+
     output=$(grep -irns "veth" /tmp/dobby/plugin/networking | grep $containername)
 
     if [ "$output" == "" ]; then
         fail "$check"
         return
     fi
-    	
+
     pass "$check"
 }
 
@@ -217,16 +216,16 @@ test_5_10() {
     local check="$testid - $desc"
     local output
     local total
-  
+
     output=$(cat /sys/fs/cgroup/memory/$containername/memory.limit_in_bytes)
-   	
+
     total=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
-    
+
     if [ "$output" == "0" -o "$output" == "-1" -o "$output" == "$total" ]; then
         fail "$check"
         return
     fi
-        
+
     pass "$check"
 }
 
@@ -236,7 +235,7 @@ test_5_11() {
     local check="$testid - $desc"
     local output
     local file
-	
+
     file="/sys/fs/cgroup/cpu/$containername/cpu.shares"
     if [ -f "$file" ]; then
         output=$(cat "$file")
@@ -266,7 +265,7 @@ test_5_12() {
         pass "$check"
         return
     fi
-        
+
     fail "$check"
 }
 
@@ -296,10 +295,10 @@ test_5_12_2() {
     local read_gid
     local uid
     local gid
-        
+
     read_uid=$(ls -n /proc/$Container_PID/root | awk '{print $3}')
     read_gid=$(ls -n /proc/$Container_PID/root | awk '{print $4}')
-	
+
     uid=$(cat /proc/$Container_PID/status | grep '^Uid:' | awk '{print $3}')
     gid=$(cat /proc/$Container_PID/status | grep '^Gid:' | awk '{print $3}')
 
@@ -307,7 +306,7 @@ test_5_12_2() {
         pass "$check"
         return
     fi
-      	
+
     fail "$check"
 }
 
@@ -342,7 +341,7 @@ test_5_12_4() {
         pass "$check"
         return
     fi
-        
+
     fail "$check"
 }
 
@@ -353,15 +352,15 @@ test_5_15() {
     local output
     local nspid
     local pid
-	
+
     pid=$(cat /proc/$Container_PID/status | grep -w 'Pid'| awk '{print $2}')
     nspid=$(cat /proc/$Container_PID/status | grep -w 'NSpid'| awk '{print $3}')
-    
+
     if [ "$nspid" == "$pid" ]; then
         fail "$check"
         return
     fi
-    	
+
     pass "$check"
 }
 
@@ -377,9 +376,9 @@ test_5_17() {
 
     if [ "$output_1" == "" -a  "$output_2" == "" ]; then
         pass "$check"
-      	return
+        return
     else
-        fail "$check"  
+        fail "$check"
         verbosetxt "${bldcynclr} These are the device nodes exposed to container with * or mknod permission"
         verbosetxt "${bldwhtclr} $output_1$output_2$1${txtrst} "
     fi
@@ -392,16 +391,16 @@ test_5_20() {
     local output_1
     local output_2
     local DobbyDaemon_PID
-	
+
     DobbyDaemon_PID=$(pidof DobbyDaemon)
     output_1=$(readlink /proc/$Container_PID/ns/uts | cut -d "[" -f2- |  cut -d "]" -f1)
     output_2=$(readlink /proc/$DobbyDaemon_PID/ns/uts | cut -d "[" -f2- |  cut -d "]" -f1)
-	
+
     if [ "$output_1" == "$output_2" ]; then
         fail "$check"
         return
     fi
-        
+
     pass "$check"
 }
 
@@ -421,7 +420,7 @@ test_5_20_1() {
         fail "$check"
         return
     fi
-        
+
     pass "$check"
 }
 
@@ -461,7 +460,7 @@ test_5_24() {
         fi
     done <<< "$output"
 
-    pass "$check"	
+    pass "$check"
 }
 
 test_5_24_1() {
@@ -470,10 +469,10 @@ test_5_24_1() {
     local check="$testid - $desc"
     local output
     local file
-	
+
     file="/sys/fs/cgroup/gpu/$containername/gpu.limit_in_bytes"
     if [ -f $file ]; then
-        output=$(cat /sys/fs/cgroup/gpu/$containername/gpu.limit_in_bytes)
+        output=$(cat "$file")
         total=$(cat /sys/fs/cgroup/gpu/gpu.limit_in_bytes)
 
         if [ "$output" == "0" -o "$output" == "-1" -o "$output" == "$total" ]; then
@@ -482,7 +481,7 @@ test_5_24_1() {
         fi
         pass "$check"
     else
-        warn "$check" 
+        warn "$check"
         verbosetxt "${bldcynclr} GPU cgroup is not supported in this platform"
     fi
 }
@@ -492,14 +491,14 @@ test_5_28() {
     local desc="Ensure that the PIDs cgroup limit is used"
     local check="$testid - $desc"
     local output
-  
+
     output=$(cat /sys/fs/cgroup/pids/$containername/pids.max)
-   
+
     if [ "$output" == "max" ]; then
         fail "$check"
-      	return
+        return
     fi
-      	
+
     pass "$check"
 }
 
@@ -509,7 +508,7 @@ test_5_29() {
     local check="$testid - $desc"
     local output
     local file
-	
+
     file="/sys/class/net/dobby0"
     if [ -d $file ]; then
         output=$(grep -irns "veth" /tmp/dobby/plugin/networking | grep $containername)
@@ -523,7 +522,7 @@ test_5_29() {
     else
         fail "$check"
         verbosetxt "${bldcynclr}Container is not using dobby0 bridged interface$1${txtrst} "
-    fi  
+    fi
 }
 
 test_5_31() {
@@ -533,12 +532,12 @@ test_5_31() {
     local output
 
     output=$(find /proc/$Container_PID/root/* -iname dobbyPty.sock 2>/dev/null)
-	
+
     if [ "$output" == "" ]; then
         pass "$check"
         return
-    fi	
-    	
+    fi
+
     fail "$check"
 }
 
@@ -551,12 +550,12 @@ test_5_32() {
 
     output=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
     output_1=$(cat $output/config.json | grep 'noNewPrivileges'  | awk '{print $2}' | sed 's/,//g')
-	
+
     if [ "$output_1" == "true"  ]; then
         pass "$check"
         return
     fi
-        
+
     fail "$check"
 }
 

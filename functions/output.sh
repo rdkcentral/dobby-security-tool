@@ -26,7 +26,7 @@ bldylwclr='\033[1;33m' # Bold cyan
 bldmgnclr='\033[1;35m' # Bold Magenta
 bldwhtclr='\033[1;37m' # Bold white
 light_ylw='\033[0;33m' # light yellow
-txtrst='\033[0m'	   # No Color
+txtrst='\033[0m'       # No Color
 
 
 # Print the text
@@ -83,9 +83,9 @@ header () {
 # Header Version details
 header_info() {
 header "# ============================================================================================
-# Dobby Security Tool                                                                  
-#                                                                                            
-# A script based tool for security vulnerability scanning of dobby container                        
+# Dobby Security Tool
+#
+# A script based tool for security vulnerability scanning of dobby container
 # ============================================================================================"
 }
 

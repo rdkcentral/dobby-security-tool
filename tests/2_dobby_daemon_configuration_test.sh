@@ -26,14 +26,14 @@ test_2_1() {
     local desc="Run the Dobby daemon as a non-root user, if possible"
     local check="$testid - $desc"
     local output
-  
+
     output=$(ps -fe | grep "DobbyDaemon"| awk '{print $1}')
     output=$(echo $output |awk '{print $1}')
     if [ "$output" == "root" ]; then
         warn "$check"
         return
     fi
-  	
+
     pass "$check"
 }
 
@@ -71,12 +71,12 @@ test_2_9() {
     local check="$testid - $desc"
     local output
 
-    output=$(cat /proc/$Container_PID/status | grep '^Uid:' | awk '{print $3}')   
+    output=$(cat /proc/$Container_PID/status | grep '^Uid:' | awk '{print $3}')
     if [ "$output" == "0"  ]; then
         fail "$check"
         return
     fi
-    	
+
     pass "$check"
 }
 
