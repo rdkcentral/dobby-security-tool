@@ -18,17 +18,17 @@
 # limitations under the License.
 
 test_1() {
-	printtxt "\n${bldbluclr}1. Host Configuration ${txtrst}"
+    printtxt "\n${bldbluclr}1. Host Configuration ${txtrst}"
 }
 
 test_1_2_2() {
-	local testid="1.2.2"
-  	local desc="Ensure that the version of Dobby is up to date"
-  	local check="$testid - $desc"
- 	local output=$DobbyVersion
-  	local crun=$crunVersion
- 
-  	crun=$(echo $crun | sed 's/commit[^-]*$//')
-	manual "$check"
-	manualbodytxt "Dobby $output \n $crun "
+    local testid="1.2.2"
+    local desc="Ensure that the version of Dobby is up to date"
+    local check="$testid - $desc"
+    local output=$DobbyVersion
+    local crun=$crunVersion
+
+    crun=$(echo $crun | sed 's/commit[^-]*$//')
+    manual "$check"
+    manualbodytxt "Dobby $output \n $crun "
 }
