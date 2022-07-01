@@ -352,24 +352,39 @@ test_5_15() {
 }
 
 test_5_17() {
-	local testid="5.17"
-	local desc="Ensure that host devices are not directly exposed to containers"
-	local check="$testid - $desc"
-	local output_1
-	local output_2
+    local testid="5.17"
+    local desc="Ensure that host devices are not directly exposed to containers"
+    local check="$testid - $desc"
+    local output_1
+    local output_2
 
-	output_1=$(cat /sys/fs/cgroup/devices/$containername/devices.list | grep  "m")
+    # First check if MKNOD is in container config, if it is not then it is safe
+    # to have devices exposed
+    output_1=$(crun --root /run/rdk/crun list | grep $containername | awk '{print $4}')
+    output_2=$(cat $output_1/config.json | grep 'CAP_MKNOD')
+
+    if [ -z "$output_2" ]; then
+        # No CAP_MKNOD
+        pass "$check"
+    else
+        output_1=$(cat /sys/fs/cgroup/devices/$containername/devices.list | grep  "m")
         output_2=$(cat /sys/fs/cgroup/devices/$containername/devices.list | grep  "*")
 
-    	if [ "$output_1" == "" -a  "$output_2" == "" ]; then
-        	pass "$check"
-      		return
-    	else
-		fail "$check"  
-		verbosetxt "${bldcynclr} These are the device nodes exposed to container with * or mknod permission"
-		verbosetxt "${bldwhtclr} $output_1$output_2$1${txtrst} "
-	fi
+        # See https://github.com/containers/crun/pull/944 for details of default devices
+        local crun_wild="c *:* m b *:* m c 136:* rwm"
+        local crun_mknod="c *:* m b *:* m c 1:3 rwm c 1:8 rwm c 1:7 rwm c 5:0 rwm c 1:5 rwm c 1:9 rwm c 5:1 rwm c 136:* rwm c 5:2 rwm"
 
+        if [[ "${output_1//[$' \n\r']/}" == "${crun_mknod//[$' \n\r']/}" && \
+              "${output_2//[$' \n\r']/}" == "${crun_wild//[$' \n\r']/}" ]]; then
+            warn "$check"
+            verbosetxt "Only crun specified devices are exposed, but having no CAP_MKNOD in container would be safer"
+        else
+            fail "$check"
+            verbosetxt "${bldcynclr} These are the device nodes exposed to container with * or mknod permission"
+            verbosetxt "${bldwhtclr} $output_1\n$output_2$1${txtrst} "
+            verbosetxt "${bldwhtclr} Only those should be avalible:\n$crun_wild\n$crun_mknod$1${txtrst} "
+        fi
+    fi
 }
 
 test_5_20() {
