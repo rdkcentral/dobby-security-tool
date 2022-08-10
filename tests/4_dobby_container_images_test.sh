@@ -18,39 +18,38 @@
 # limitations under the License.
 
 test_4() {
-	printtxt "\n${bldbluclr}4. Dobby Container Images Test ${txtrst}"
+    printtxt "\n${bldbluclr}4. Dobby Container Images Test ${txtrst}"
 }
 
 test_4_1() {
-	local testid="4.1"
-	local desc="Ensure that a user for the container has been created"
-	local check="$testid - $desc"
-	local child_pid
-	local output
-	
-	child_pid=$(ps h --ppid $Container_PID -o pid | sed 's/ //g')
+    local testid="4.1"
+    local desc="Ensure that a user for the container has been created"
+    local check="$testid - $desc"
+    local child_pid
+    local output
 
-	output=$(cat /proc/$child_pid/status | grep '^Uid:' | awk '{print $3}')
-   
-   	if [ "$output" == "0"  ]; then
-      		fail "$check"
-      		return
-    	fi
-    	pass "$check"
+    child_pid=$(ps h --ppid $Container_PID -o pid | sed 's/ //g')
+    output=$(cat /proc/$child_pid/status | grep '^Uid:' | awk '{print $3}')
+    if [ "$output" == "0"  ]; then
+        fail "$check"
+        return
+    fi
+
+    pass "$check"
 }
 
 test_4_8() {
-	local testid="4.8"
-        local desc="Ensure setuid and setgid permissions are removed"
-        local check="$testid - $desc"
-	local output
+    local testid="4.8"
+    local desc="Ensure setuid and setgid permissions are removed"
+    local check="$testid - $desc"
+    local output
 
-	output=$(find /proc/$Container_PID/root/ -perm /6000 2>/dev/null)
-	if [ "$output" == ""  ]; then
-		pass "$check"
-      		return
-   	fi
-		
-        fail "$check"
-	verbosetxt "$(ls -lh $output | cut -d "/" -f5-)"
+    output=$(find /proc/$Container_PID/root/ -perm /6000 2>/dev/null)
+    if [ "$output" == ""  ]; then
+        pass "$check"
+        return
+    fi
+
+    fail "$check"
+    verbosetxt "$(ls -lh $output | cut -d "/" -f5-)"
 }
